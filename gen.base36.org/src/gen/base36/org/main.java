@@ -23,11 +23,14 @@ package gen.base36.org;
  */
 
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class main {
 
 	public final static int MAX_digits = 5;
 	public final static int base = 36;
+	
 	public static void main(String[] args) {
 		
 		//println(intToChar36(5));
@@ -40,19 +43,33 @@ public class main {
 		
 		//make sure that each case is upper 
 		str = str.toUpperCase();
+		int size = str.length();
+		
+		if(str.startsWith("E")){//for now the string must not start with E, does not matter if size is 1.
+			throw new IllegalArgumentException("Base 36 can't start with \'E\'!");
+		}
 		//This function will convert a base36 string to it's int equivalent 
 		int result = 0;
 		double frontVal =0;
 		double lastVal = 0;
-		int size = str.length();
+		
 		boolean started = false;
 		
 		
 		frontVal = char36ToInt(str.charAt(0));
+		
 		for(int i = 0; i < size; i++){
 			//TODO: log this println("frontVal = " + frontVal);
-			
-			if(i+1 < size && (started || frontVal >0.0) ){
+			if(!Character.isLetterOrDigit(str.charAt(i))){
+				throw new IllegalArgumentException("Base 36 has invalid character (\'"+str.charAt(i)+"\').");
+			}
+			if(frontVal > 13 && i == 0 && i+1 < size){
+				frontVal = char35ToInt(str.charAt(i));
+				lastVal = char36ToInt(str.charAt(i+1));
+				
+				frontVal = (frontVal + (lastVal/((double)base)))*((double)base);
+				started =true;
+			}else if(i+1 < size && (started || frontVal >0.0) ){
 				lastVal = char36ToInt(str.charAt(i+1));
 				//TODO: log this println("lastVal = " + lastVal);
 				//should contain the temp result:
@@ -73,7 +90,7 @@ public class main {
 		result = (int)Math.round(frontVal);
 		return result;
 	}
-	
+	//TODO add base35:
 	public static String intToBase36(int n){//passed test for base36!
 		//Converts an int value to a base36 string
 		String result = "";
@@ -112,6 +129,10 @@ public class main {
 	
 	public static char intToChar36(int n){//passed test!
 		//Converts the integer value to the equivalent base 36 character
+		if(n >= base || n < 0){
+			throw new IllegalArgumentException("Must Enter a positive value that is less than "+base);
+		}
+		
 		char result = (char)0;
 		
 		if(n >=0 && n <= 9)
@@ -119,6 +140,7 @@ public class main {
 		else if(n > 9 && n < base){
 			result = (char)(65-10+n);
 		}
+		
 		return result;
 	}
 	public static char intToChar35(int n){//passed test!
@@ -132,6 +154,7 @@ public class main {
 			result = (char)(65-10+n);
 		}else if(n > 13 && n < 36)
 			result = (char)(65-10+n+1);
+		
 		return result;
 	}
 	

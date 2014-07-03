@@ -1,25 +1,61 @@
 package gen.base36.org.test;
 
 import static org.junit.Assert.*;
+
 import gen.base36.org.main;
-
 import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class mainTest {
 //last tested int 11144144
-	int max = (int) Math.pow((double)main.base, (double)main.MAX_digits)-1; 
+	
+	int max = (int) Math.pow((double)main.base, (double)main.MAX_digits-1)*35-1; 
+	final Logger logger = LoggerFactory.getLogger(mainTest.class);
+	//final Logger logs = JDK14LoggerFactory.getLogger(mainTest.class);
 	@Test
 	public void test() {
 		//int input = 61;
 		//String str = test_intToBase36(input);
 		//int val = test_base36ToInt(str);
 		//assertEquals("revert base 36 to int: ", input, val);
-		test_ConvertandRevert_base35();
+		//test_ConvertandRevert_base35();
+		println("max = "+max);
+		test_base36ToInt("D0000");
+		base36ToInt_throw_IllegalArgumentException("E0000");
+		base36ToInt_RunAllCharsForThrows();
+		test_base36ToInt("F0000");
+		test_base36ToInt("G0000");
 		
 		//testAllfromMinToMax(max);
 	}
-    
+	public void RunAllTests(){
+		
+	}
+	 
+    public boolean base36ToInt_throw_IllegalArgumentException(String str){
+    	boolean passed = true;
+    	String message = "";
+    	
+    	//Make sure to throw exception if base36 contains an 'E'
+    	try{main.base36ToInt(str);}catch(IllegalArgumentException e){passed = false;message = e.toString();}
+    	//TODO use logging:
+    	if(!message.isEmpty())
+    		println(message);
+    	
+    	return passed;
+    }
+    public void base36ToInt_RunAllCharsForThrows(){
+    	//runs a base36ToInt with ASCII chars from 0 to 127.
+    	//this should only throw exceptions for the invalid characters
+    	
+    	println("Starting base36ToInt_RunAllCharsForThrows() Test...");
+    	for(int i = 0; i< 128; i++){
+    		base36ToInt_throw_IllegalArgumentException(Character.toString((char)i));
+    	}
+    	println("Ended base36ToInt_RunAllCharsForThrows()");
+    }
 	public void test_ConvertandRevert_base35(){
 		char c = '!';
 		int n = 0;
@@ -108,10 +144,15 @@ public class mainTest {
     
     //used to make things easy
     public void print(Object obj){
-    	System.out.print(obj);
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.info(obj.toString());
     }
     public void println(Object obj){
-    	System.out.println(obj);
+    	//this does not println it logs!!!
+    	
+    	//System.out.println(obj);
+    	logger.info(obj.toString() + "\n");
     }
     
 }
