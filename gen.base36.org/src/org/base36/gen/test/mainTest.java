@@ -1,48 +1,86 @@
-package gen.base36.org.test;
+package org.base36.gen.test;
 
 import static org.junit.Assert.*;
 
-import gen.base36.org.main;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Properties;
+
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.log4j.*;
+import org.apache.log4j.PropertyConfigurator.*;
+import org.apache.log4j.config.*;
+//PropertyConfigurator.configure("log4j.properties");
+import org.base36.gen.main;
+
 public class mainTest {
 //last tested int 11144144
 	
-	int max = (int) Math.pow((double)main.base, (double)main.MAX_digits-1)*35-1; 
-	final Logger logger = LoggerFactory.getLogger(mainTest.class);
-	//final Logger logs = JDK14LoggerFactory.getLogger(mainTest.class);
+	
+	int max = (int) Math.pow((double)main.base, (double)main.MAX_digits-1)*35-1;
+	Logger logger = LoggerFactory.getLogger(mainTest.class);
+	//configure("log4j.properties");
+	
+	
 	@Test
 	public void test() {
+		//Start logging to MainTest.log
+		logToMainTest();
+		Date startTime = new Date();//System.currentTimeMillis()/1000.0;
+		
+		logInfo("\tTest Started - " + startTime);
+		
 		//int input = 61;
 		//String str = test_intToBase36(input);
 		//int val = test_base36ToInt(str);
 		//assertEquals("revert base 36 to int: ", input, val);
 		//test_ConvertandRevert_base35();
-		println("max = "+max);
-		test_base36ToInt("D0000");
-		base36ToInt_throw_IllegalArgumentException("E0000");
-		base36ToInt_RunAllCharsForThrows();
-		test_base36ToInt("F0000");
-		test_base36ToInt("G0000");
+		//logDebug("max = "+max);
+		//test_base36ToInt("D0000");
+		//base36ToInt_throw_IllegalArgumentException("E0000");
 		
-		//testAllfromMinToMax(max);
+		//test_base36ToInt("F0000");
+		//test_base36ToInt("G0000");
+		
+		testAllfromMinToMax(max);
+		Date endTime = new Date();//System.currentTimeMillis()/1000.0;
+		logInfo("Total Run time = "+ (endTime.getTime()/1000.0-startTime.getTime()/1000.0 +" sec"));
+		logInfo("\tTest Ended - " + endTime+"\n");
+		
 	}
 	public void RunAllTests(){
-		
+		base36ToInt_RunAllCharsForThrows();
 	}
-	 
+	public void logToMainTest(){
+		try{
+			Properties props = new Properties();
+			props.load(new FileInputStream("src\\org\\base36\\gen\\test\\log4j.properties"));
+			PropertyConfigurator.configure(props);
+		}catch(FileNotFoundException e)
+		{
+			e.printStackTrace();
+			//do nothing....
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+	}
     public boolean base36ToInt_throw_IllegalArgumentException(String str){
     	boolean passed = true;
     	String message = "";
     	
     	//Make sure to throw exception if base36 contains an 'E'
     	try{main.base36ToInt(str);}catch(IllegalArgumentException e){passed = false;message = e.toString();}
-    	//TODO use logging:
+    	
     	if(!message.isEmpty())
-    		println(message);
+    		logError(message);
     	
     	return passed;
     }
@@ -50,11 +88,11 @@ public class mainTest {
     	//runs a base36ToInt with ASCII chars from 0 to 127.
     	//this should only throw exceptions for the invalid characters
     	
-    	println("Starting base36ToInt_RunAllCharsForThrows() Test...");
+    	logDebug("Starting \'base36ToInt_RunAllCharsForThrows()\' Test...");
     	for(int i = 0; i< 128; i++){
     		base36ToInt_throw_IllegalArgumentException(Character.toString((char)i));
     	}
-    	println("Ended base36ToInt_RunAllCharsForThrows()");
+    	logDebug("End of \'base36ToInt_RunAllCharsForThrows()\' Test");
     }
 	public void test_ConvertandRevert_base35(){
 		char c = '!';
@@ -63,7 +101,7 @@ public class mainTest {
 		for(int i = 0; i <38; i++){
 			c = main.intToChar35(i);
 			n = main.char35ToInt(c);
-			println("int input = "+i+"\tbase36 char = " + c +"\t intVal = " + n);
+			logInfo("int input = "+i+"\tbase36 char = " + c +"\t intVal = " + n);
 			if(i < 35)
 				assertEquals("Convert \'"+i+"\' to base 35 and back to int ", i, n );
 			else
@@ -73,19 +111,24 @@ public class mainTest {
 	//TEST int to char base 36:
 	public char test_intToChar35(int n){
 		//same as int to char base 36; however E must be removed
+		logDebug("Starting \'test_intToChar35(int n)\'");
 		char c = main.intToChar35(n);
-		println(n + "\tto charBase35 = \t" + c);
-		//assertEquals("TEST: int ("+n+") to charBase35", n, "");
+		logDebug(n + "\tto charBase35 = \t" + c);
+		logDebug("End of \'test_intToChar35(int n)\'");
 		return c;
 	}
 	public int  test_char35ToInt(char c){
+		logDebug("Starting \'test_char35ToInt(char c)\'");
+		
 		int result = main.char35ToInt(c);
-		println(c + "\tcharBase35 to int = \t" + result);
+		logDebug(c + "\tcharBase35 to int = \t" + result);
+		logDebug("End of \'test_intToChar35(int n)\'");
+		
 		return result;
 	}
 	//TEST int to char base 36:
 	public void test_intToChar36(){
-    	//test intToChar36(n)
+    	logDebug("Starting \'test_intToChar36()\'");
 		for(int i =0; i<=39; i++){
 			if(i >= 0 && i < 10)
 				assertEquals("Result",(char)(48+i), main.intToChar36(i));
@@ -93,14 +136,15 @@ public class mainTest {
 				assertEquals("Result",(char)(65-10+i), main.intToChar36(i));
 			char result = main.intToChar36(i);
 			if(result != (char)0)
-				println(i +" = "+result);
-			else println("null");
+				logDebug(i +" = "+result);
+			else logDebug("null");
 		}
+		logDebug("End of \'test_intToChar36()\'");
     }
 	
 	//TEST: char base36 to Int
     public void test_char36ToInt(){
-
+    	logDebug("Starting \'test_char36ToInt()\'");
     	int result = 0;
 		for(int i =0; i<=39; i++){
 			if(i >= 0 && i < 10){
@@ -110,49 +154,67 @@ public class mainTest {
 				assertEquals("Result",i,  main.char36ToInt((char)(65-10+i)));
 				result= main.char36ToInt((char)(65-10+i));
 			}else result = -1;
-			println(main.intToChar36(i) +" = "+result);
+			logDebug(main.intToChar36(i) +" = "+result);
 			
 		}
+		logDebug("End of \'test_char36ToInt()\'");
     }
     //TEST: int to base36
     public String test_intToBase36(int val){
     	//NEW
-    	
+    	logDebug("Starting \'test_intToBase36(int val)\'");
     	String str = main.intToBase36(val);
-    	println("base36: "+str);
+    	logDebug("base36: "+str);
+    	logDebug("End of \'test_intToBase36(int val)\'");
     	return str;
     }
     //TEST: base36 To Int
     public int test_base36ToInt(String str){
     	//NEW
-    	
+    	logDebug("Starting \'test_base36ToInt(String str)\'");
     	int val = main.base36ToInt(str);
-    	println("int: "+val);
+    	logDebug("int: "+val);
+    	logDebug("End of \'test_base36ToInt(String str)\'");
     	return val;
     }
     
     public void testAllfromMinToMax(int max){
     	//this test will make sure that we can convert a long int value to a base 36; and vice versa
-    	println("------------------------------------------");
+    	logDebug("Starting \'testAllfromMinToMax(int max)\'");
     	for(int i = 0; i < max; i++){
     		String str = test_intToBase36(i);
     		int val = test_base36ToInt(str);
     		assertEquals("("+i+")Check if input is the same as output \nfor int->base64 to base36->int: ", i, val);
-    		println("");
+    		//TODO remove this comment println("");
     	}
+    	logDebug("End of \'testAllfromMinToMax(int max)\'");
     }
     
     //used to make things easy
-    public void print(Object obj){
+    public void logInfo(Object obj){
     	//this does not println it logs!!!
     	//System.out.print(obj);
     	logger.info(obj.toString());
     }
+    public void logError(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.error(obj.toString());
+    }
+    public void logWarrning(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.warn(obj.toString());
+    }
+    public void logDebug(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.debug(obj.toString());
+    }
     public void println(Object obj){
     	//this does not println it logs!!!
-    	
     	//System.out.println(obj);
-    	logger.info(obj.toString() + "\n");
+    	System.out.println(obj.toString() + "\n");
     }
     
 }

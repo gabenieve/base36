@@ -1,4 +1,4 @@
-package gen.base36.org;
+package org.base36.gen;
 
 /* Coded by: 
  * 	Gabriel E. Nieves
@@ -23,6 +23,8 @@ package gen.base36.org;
  */
 
 import java.util.ArrayList;
+
+import org.base36.gen.test.mainTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,7 @@ public class main {
 
 	public final static int MAX_digits = 5;
 	public final static int base = 36;
-	
+	public final static Logger logger = LoggerFactory.getLogger(mainTest.class);
 	public static void main(String[] args) {
 		
 		//println(intToChar36(5));
@@ -40,7 +42,7 @@ public class main {
 
 	public static int base36ToInt(String str){//passed test for base36!
 		
-		
+		logDebug("Start \'base36ToInt(String str)\'");
 		//make sure that each case is upper 
 		str = str.toUpperCase();
 		int size = str.length();
@@ -59,7 +61,9 @@ public class main {
 		frontVal = char36ToInt(str.charAt(0));
 		
 		for(int i = 0; i < size; i++){
-			//TODO: log this println("frontVal = " + frontVal);
+			 
+			logDebug("["+i+"] frontVal = " + frontVal +"\n");
+			
 			if(!Character.isLetterOrDigit(str.charAt(i))){
 				throw new IllegalArgumentException("Base 36 has invalid character (\'"+str.charAt(i)+"\').");
 			}
@@ -68,13 +72,17 @@ public class main {
 				lastVal = char36ToInt(str.charAt(i+1));
 				
 				frontVal = (frontVal + (lastVal/((double)base)))*((double)base);
+				logDebug("["+i+"] (frontVal + (lastVal/base))*(base) = " + frontVal);
 				started =true;
 			}else if(i+1 < size && (started || frontVal >0.0) ){
 				lastVal = char36ToInt(str.charAt(i+1));
-				//TODO: log this println("lastVal = " + lastVal);
+				logDebug("["+i+"] lastVal = " + lastVal);
+				
 				//should contain the temp result:
 				frontVal = (frontVal + (lastVal/((double)base)))*((double)base);
-				//TODO: log this println("new frontVal = " + frontVal);
+				 
+				logDebug("["+i+"] (frontVal + (lastVal/base))*(base) = " + frontVal);
+				
 			}else if(!started){
 				if(frontVal == 0.0 && i+1 < size){
 					lastVal = char36ToInt(str.charAt(i+1));
@@ -88,6 +96,9 @@ public class main {
 			
 		}
 		result = (int)Math.round(frontVal);
+		logDebug("result = " + result);
+		logDebug("End of \'base36ToInt(String str)\'");
+		logInfo("Converted base36(" +str+") to base10(" + result+")");
 		return result;
 	}
 	//TODO add base35:
@@ -105,8 +116,10 @@ public class main {
 			//val is greater than the base; so we need to continue loop until it is not
 			
 			frontVal = val/base;//store the front part
+			
 			lastVal = val%base;//store the last part
-			//TODO log thisprintln("val = " + val + "\tfrontVal = " +frontVal + "\tlastVal = " + lastVal);
+			//TODO log this
+			logDebug("val = " + val + "\tfrontVal = " +frontVal + "\tlastVal = " + lastVal);
 			list.add(Character.toString(intToChar36(lastVal)));
 			val = frontVal;
 			
@@ -123,7 +136,7 @@ public class main {
 		//convert list to string, in order.
 		for(int i =list.size()-1; i >= 0 ; i--)
 			result += list.get(i);
-		
+		logInfo("Converted base10(" +n+") to base36(" + result + ")");
 		return result;
 	}
 	
@@ -182,7 +195,28 @@ public class main {
 	public static void print(Object obj){
 		System.out.print(obj);
 	}
+	
 	public static void println(Object obj){
 		System.out.println(obj);
 	}
+	public static void logInfo(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.info(obj.toString());
+    }
+    public static void logError(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.error(obj.toString());
+    }
+    public static void logWarrning(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.warn(obj.toString());
+    }
+    public static void logDebug(Object obj){
+    	//this does not println it logs!!!
+    	//System.out.print(obj);
+    	logger.debug(obj.toString());
+    }
 }
