@@ -7,7 +7,7 @@ package org.base36.gen;
  * 	06/30/2014
  * 
  * Last Modified:
- * 	07/03/2014
+ * 	07/07/2014
  * 
  * Description:
  * 	This is an example to code to convert an integer to a base36 string value.
@@ -17,8 +17,11 @@ package org.base36.gen;
  * 	base 36 string should be base 35; this will eliminate the ‘E’ character from 
  *  our conversion.
  * 
- * License:
- * 	...
+ * TODO:
+ * 	1- Need make sure if value is over max, to reset to 0
+ *  2- except long integer values
+ *  3- Convert to Class
+ *  4 - add exception for E0000 for base36ToInt()
  * 
  */
 
@@ -33,6 +36,7 @@ public class main {
 	public final static int MAX_digits = 5;
 	public final static int base = 36;
 	public final static Logger logger = LoggerFactory.getLogger(mainTest.class);
+	
 	public static void main(String[] args) {
 		
 		//println(intToChar36(5));
@@ -110,6 +114,7 @@ public class main {
 		int lastVal =0;
 		int val = n;//preserve input
 		frontVal = val;
+		boolean got1st = false;
 		
 		while(val >= base){
 			
@@ -120,14 +125,18 @@ public class main {
 			lastVal = val%base;//store the last part
 			//TODO log this
 			logDebug("val = " + val + "\tfrontVal = " +frontVal + "\tlastVal = " + lastVal);
-			list.add(Character.toString(intToChar36(lastVal)));
+			//if(!got1st && lastVal > 13 ){
+			//	list.add(Character.toString(intToChar35(lastVal)));
+			//	got1st = true;
+			//}else
+				list.add(Character.toString(intToChar36(lastVal)));
 			val = frontVal;
 			
 		}
 		
 		//add last base36 digit
-		if(frontVal > 0)
-			list.add(Character.toString(intToChar36(frontVal)));
+		if(frontVal > 0 && frontVal < base-1)
+			list.add(Character.toString(intToChar35(frontVal)));
 		
 		//fill the rest of the string with 0s
 		for(int i = list.size(); i < MAX_digits; i++)
@@ -139,7 +148,7 @@ public class main {
 		logInfo("Converted base10(" +n+") to base36(" + result + ")");
 		return result;
 	}
-	
+	//
 	public static char intToChar36(int n){//passed test!
 		//Converts the integer value to the equivalent base 36 character
 		if(n >= base || n < 0){
@@ -187,7 +196,7 @@ public class main {
 	}
 	public static int char35ToInt(char c){//passed test!
 		int result = char36ToInt(c); 
-		if(result > 13)
+		if(result > 13 && result < base)
 			result--;
 		return result;
 			

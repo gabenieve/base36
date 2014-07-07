@@ -28,7 +28,8 @@ public class mainTest {
 	Logger logger = LoggerFactory.getLogger(mainTest.class);
 	//configure("log4j.properties");
 	
-	
+	//NOTE: 23514624 in base36 = E0000; however since 'E' is reserved in the 1st char, 
+	// we need to use base 35, which is F0000
 	@Test
 	public void test() {
 		//Start logging to MainTest.log
@@ -37,9 +38,11 @@ public class mainTest {
 		
 		logInfo("\tTest Started - " + startTime);
 		
-		//int input = 61;
-		//String str = test_intToBase36(input);
-		//int val = test_base36ToInt(str);
+		/*int input = 23514623;
+		String str = test_intToBase36(input);
+		int val = test_base36ToInt(str);
+		str = test_intToBase36(input+1);
+		val = test_base36ToInt(str);*/
 		//assertEquals("revert base 36 to int: ", input, val);
 		//test_ConvertandRevert_base35();
 		//logDebug("max = "+max);
@@ -49,7 +52,9 @@ public class mainTest {
 		//test_base36ToInt("F0000");
 		//test_base36ToInt("G0000");
 		
-		testAllfromMinToMax(max);
+		testAllfromMinToMax(58786558, max+3);
+		
+		
 		Date endTime = new Date();//System.currentTimeMillis()/1000.0;
 		logInfo("Total Run time = "+ (endTime.getTime()/1000.0-startTime.getTime()/1000.0 +" sec"));
 		logInfo("\tTest Ended - " + endTime+"\n");
@@ -178,13 +183,21 @@ public class mainTest {
     	return val;
     }
     
-    public void testAllfromMinToMax(int max){
+    public void testAllfromMinToMax(int min, int max){
     	//this test will make sure that we can convert a long int value to a base 36; and vice versa
     	logDebug("Starting \'testAllfromMinToMax(int max)\'");
-    	for(int i = 0; i < max; i++){
-    		String str = test_intToBase36(i);
-    		int val = test_base36ToInt(str);
-    		assertEquals("("+i+")Check if input is the same as output \nfor int->base64 to base36->int: ", i, val);
+    	String str = "";
+    	int val = -1;
+    	
+    	for(int i = min; i < max; i++){
+    		str = test_intToBase36(i);
+    		try{
+    			val = test_base36ToInt(str);
+    			if(i <= this.max)
+    				assertEquals("("+i+")Check if input is the same as output \nfor int->base64 to base36->int: ", i, val);
+    		}catch(IllegalArgumentException e){
+    			logError(e.toString());	
+    		}
     		//TODO remove this comment println("");
     	}
     	logDebug("End of \'testAllfromMinToMax(int max)\'");
@@ -192,28 +205,18 @@ public class mainTest {
     
     //used to make things easy
     public void logInfo(Object obj){
-    	//this does not println it logs!!!
-    	//System.out.print(obj);
     	logger.info(obj.toString());
     }
     public void logError(Object obj){
-    	//this does not println it logs!!!
-    	//System.out.print(obj);
     	logger.error(obj.toString());
     }
     public void logWarrning(Object obj){
-    	//this does not println it logs!!!
-    	//System.out.print(obj);
     	logger.warn(obj.toString());
     }
     public void logDebug(Object obj){
-    	//this does not println it logs!!!
-    	//System.out.print(obj);
     	logger.debug(obj.toString());
     }
     public void println(Object obj){
-    	//this does not println it logs!!!
-    	//System.out.println(obj);
     	System.out.println(obj.toString() + "\n");
     }
     
